@@ -3,6 +3,7 @@ import '../sass/main.scss';
 // import example from './ex02';
 // import example from './ex03';
 // import example from './ex04';
-import example from './ex05';
+// import example from './ex05';
+import example from './ex06_02';
 
 example();

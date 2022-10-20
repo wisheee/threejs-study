@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-// ----- 주제: 애니메이션 기본
+// ----- 주제: 애니메이션 성능 보정
 
 export default function example() {
   // Renderer
@@ -40,17 +40,19 @@ export default function example() {
   scene.add(mesh);
 
   // 그리기
-  const clock = new THREE.Clock();
+  let oldTime = Date.now();
 
   function draw() {
-    const time = clock.getElapsedTime();
+    const newTime = Date.now();
+    const deltaTime = newTime - oldTime;
+    oldTime = newTime;
 
     // 각도는 Radian을 사용
     // 360도는 2파이
     // mesh.rotation.y += 0.1;
     // mesh.rotation.y += THREE.MathUtils.degToRad(1);
-    mesh.rotation.y = time;
-    mesh.position.y += 0.01;
+    mesh.rotation.y += 0.005 * deltaTime;
+    mesh.position.y += 0.001 * deltaTime;
     if (mesh.position.y > 3) {
       mesh.position.y = 0;
     }
