@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import dat from 'dat.gui';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: position
+// ----- 주제: Geometry 기본
 
 export default function example() {
   // Renderer
@@ -36,23 +36,22 @@ export default function example() {
   directionalLight.position.z = 2;
   scene.add(directionalLight);
 
+  // Controls
+  const controls = new OrbitControls(camera, renderer.domElement);
+
   // Mesh
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
   const material = new THREE.MeshStandardMaterial({
-    color: 'seagreen',
+    color: 'hotpink',
+    side: THREE.DoubleSide,
+    wireframe: true,
   });
   const mesh = new THREE.Mesh(geometry, material);
   scene.add(mesh);
 
   // AxesHelper
-  const axesHelper = new THREE.AxesHelper(3);
-  scene.add(axesHelper);
-
-  // Dat GUI
-  const gui = new dat.GUI();
-  gui.add(camera.position, 'x', -5, 5, 0.1).name('카메라 X');
-  gui.add(camera.position, 'y', -5, 5, 0.1).name('카메라 Y');
-  gui.add(camera.position, 'z', 2, 10, 0.1).name('카메라 Z');
+  // const axesHelper = new THREE.AxesHelper(3);
+  // scene.add(axesHelper);
 
   // 그리기
   const clock = new THREE.Clock();
