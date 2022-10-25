@@ -9,6 +9,7 @@ import '../sass/main.scss';
 // import example from './ex08';
 // import example from './ex09';
 // import example from './ex10';
-import example from './ex11';
+// import example from './ex11';
+import example from './ex12';
 
 example();
