@@ -13,6 +13,14 @@ module.exports = {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist'),
     clean: true,
+    assetModuleFilename: (pathData) => {
+      const filepath = path
+        .dirname(pathData.filename)
+        .split('/')
+        .slice(1)
+        .join('/');
+      return `${filepath}/[name].[hash][ext][query]`;
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -35,18 +43,10 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         type: 'asset/resource',
-        generator: {
-          outputPath: 'images/',
-          publicPath: 'images/',
-        },
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
-        generator: {
-          outputPath: 'fonts/',
-          filename: '[name][ext]',
-        },
       },
       {
         test: /\.(js)$/,
