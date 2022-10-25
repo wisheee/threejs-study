@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import dat from 'dat.gui';
 
-// ----- 주제: MeshBasicMaterial
+// ----- 주제: Light 기본
 
 export default function example() {
   // Renderer
@@ -28,24 +29,56 @@ export default function example() {
   scene.add(camera);
 
   // Light
-  // MeshBasicMaterial은 조명이 필요 없다
+  const ambientLight = new THREE.AmbientLight('white', 0.5);
+  scene.add(ambientLight);
+
+  const light = new THREE.DirectionalLight('white', 0.5);
+  // light.position.x = -3;
+  light.position.y = 3;
+  scene.add(light);
+
+  const lightHelper = new THREE.DirectionalLightHelper(light);
+  scene.add(lightHelper);
 
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
 
+  // Geometry
+  const planeGeometry = new THREE.PlaneGeometry(10, 10);
+  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const sphereGeometry = new THREE.SphereGeometry(0.7, 16, 16);
+
+  // Material
+  const material1 = new THREE.MeshStandardMaterial({ color: 'white' });
+  const material2 = new THREE.MeshStandardMaterial({ color: 'royalblue' });
+  const material3 = new THREE.MeshStandardMaterial({ color: 'gold' });
+
   // Mesh
-  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  const material = new THREE.MeshBasicMaterial({
-    color: 'orange',
-  });
-  const mesh = new THREE.Mesh(geometry, material);
-  scene.add(mesh);
+  const plane = new THREE.Mesh(planeGeometry, material1);
+  const box = new THREE.Mesh(boxGeometry, material2);
+  const sphere = new THREE.Mesh(sphereGeometry, material3);
+
+  plane.rotation.x = -Math.PI * 0.5;
+  box.position.set(1, 1, 0);
+  sphere.position.set(-1, 1, 0);
+
+  scene.add(plane, box, sphere);
+
+  // AxesHelper
+  const axesHelper = new THREE.AxesHelper(3);
+  scene.add(axesHelper);
+
+  // Dat GUI
+  const gui = new dat.GUI();
+  gui.add(light.position, 'x', -5, 5);
+  gui.add(light.position, 'y', -5, 5);
+  gui.add(light.position, 'z', -5, 5);
 
   // 그리기
   const clock = new THREE.Clock();
 
   function draw() {
-    const delta = clock.getDelta();
+    const time = clock.getElapsedTime();
 
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
