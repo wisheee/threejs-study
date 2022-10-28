@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import dat from 'dat.gui';
 
-// ----- 주제: Light 기본
+// ----- 주제: 특정 방향의 광선(Ray)에 맞은 Mesh 판별하기
 
 export default function example() {
   // Renderer
@@ -24,6 +23,7 @@ export default function example() {
     0.1,
     1000
   );
+  camera.position.x = 5;
   camera.position.y = 1.5;
   camera.position.z = 4;
   scene.add(camera);
@@ -32,9 +32,9 @@ export default function example() {
   const ambientLight = new THREE.AmbientLight('white', 0.5);
   scene.add(ambientLight);
 
-  const light = new THREE.DirectionalLight('red', 0.5);
-  // light.position.x = -3;
-  light.position.y = 3;
+  const light = new THREE.DirectionalLight('white', 1);
+  light.position.x = 1;
+  light.position.y = 2;
   scene.add(light);
 
   const lightHelper = new THREE.DirectionalLightHelper(light);
@@ -43,36 +43,34 @@ export default function example() {
   // Controls
   const controls = new OrbitControls(camera, renderer.domElement);
 
-  // Geometry
-  const planeGeometry = new THREE.PlaneGeometry(10, 10);
-  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const sphereGeometry = new THREE.SphereGeometry(0.7, 16, 16);
-
-  // Material
-  const material1 = new THREE.MeshStandardMaterial({ color: 'white' });
-  const material2 = new THREE.MeshStandardMaterial({ color: 'royalblue' });
-  const material3 = new THREE.MeshStandardMaterial({ color: 'gold' });
-
   // Mesh
-  const plane = new THREE.Mesh(planeGeometry, material1);
-  const box = new THREE.Mesh(boxGeometry, material2);
-  const sphere = new THREE.Mesh(sphereGeometry, material3);
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 'yellow' });
+  const points = [];
+  points.push(new THREE.Vector3(0, 0, 100));
+  points.push(new THREE.Vector3(0, 0, -100));
+  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const guide = new THREE.Line(lineGeometry, lineMaterial);
+  scene.add(guide);
 
-  plane.rotation.x = -Math.PI * 0.5;
-  box.position.set(1, 1, 0);
-  sphere.position.set(-1, 1, 0);
+  const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const boxMaterial = new THREE.MeshStandardMaterial({ color: 'plum' });
+  const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+  boxMesh.name = 'box';
 
-  scene.add(plane, box, sphere);
+  const torusGeometry = new THREE.TorusGeometry(2, 0.5, 16, 100);
+  const torusMaterial = new THREE.MeshStandardMaterial({ color: 'lime' });
+  const torusMesh = new THREE.Mesh(torusGeometry, torusMaterial);
+  torusMesh.name = 'torus';
+
+  scene.add(boxMesh, torusMesh);
+
+  const meshes = [boxMesh, torusMesh];
+
+  const raycaster = new THREE.Raycaster();
 
   // AxesHelper
   const axesHelper = new THREE.AxesHelper(3);
   scene.add(axesHelper);
-
-  // Dat GUI
-  const gui = new dat.GUI();
-  gui.add(light.position, 'x', -5, 5);
-  gui.add(light.position, 'y', -5, 5);
-  gui.add(light.position, 'z', -5, 5);
 
   // 그리기
   const clock = new THREE.Clock();
@@ -80,8 +78,22 @@ export default function example() {
   function draw() {
     const time = clock.getElapsedTime();
 
-    light.position.x = Math.cos(time) * 5;
-    light.position.z = Math.sin(time) * 5;
+    boxMesh.position.y = Math.sin(time) * 2;
+    torusMesh.position.y = Math.cos(time) * 2;
+    boxMesh.material.color.set('plum');
+    torusMesh.material.color.set('lime');
+
+    const origin = new THREE.Vector3(0, 0, 100);
+    // const direction = new THREE.Vector3(0, 0, -1);
+    const direction = new THREE.Vector3(0, 0, -100);
+    direction.normalize();
+    raycaster.set(origin, direction);
+
+    const intersects = raycaster.intersectObjects(meshes);
+    intersects.forEach(item => {
+      // console.log(item.object.name);
+      item.object.material.color.set('red');
+    })
 
     renderer.render(scene, camera);
     renderer.setAnimationLoop(draw);
