@@ -49,6 +49,10 @@ module.exports = {
         type: 'asset/resource',
       },
       {
+        test: /\.(mp3)$/i,
+        type: 'asset/resource',
+      },
+      {
         test: /\.(js)$/,
         exclude: /(node_modules|bower_components)/,
         use: ['babel-loader'],
