@@ -1,12 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import * as CANNON from 'cannon-es';
 
-// ----- 주제: cannon.js 기본 세팅
-
-// cannon.js 문서
-// http://schteppe.github.io/cannon.js/docs/
-// 주의! https 아니고 http
+// ----- 주제: 기본 Geometry 파티클
 
 export default function example() {
 	// Renderer
@@ -43,48 +38,20 @@ export default function example() {
 
 	// Controls
 	const controls = new OrbitControls(camera, renderer.domElement);
-
-	// Cannon(물리 엔진)
-	const cannonWorld = new CANNON.World();
-	cannonWorld.gravity.set(0, -10, 0);
+	controls.enableDamping = true;
 	
-	const floorShape = new CANNON.Plane();
-	const floorBody = new CANNON.Body({
-		mass: 0,
-		position: new CANNON.Vec3(0, 0, 0),
-		shape: floorShape
-	});
-	floorBody.quaternion.setFromAxisAngle(
-		new CANNON.Vec3(-1, 0, 0),
-		Math.PI / 2
-	);
-	cannonWorld.addBody(floorBody);
-
-	const boxShape = new CANNON.Box(new CANNON.Vec3(0.25, 2.5, 0.25));
-	const boxBody = new CANNON.Body({
-		mass: 1,
-		position: new CANNON.Vec3(0, 10, 0),
-		shape: boxShape
-	});
-	cannonWorld.addBody(boxBody);
 
 	// Mesh
-	const floorMesh = new THREE.Mesh(
-		new THREE.PlaneGeometry(10, 10),
-		new THREE.MeshStandardMaterial({
-			color: 'slategray'
-		})
-	);
-	floorMesh.rotation.x = -Math.PI / 2;
-	scene.add(floorMesh);
-
-	const boxGeometry = new THREE.BoxGeometry(0.5, 5, 0.5);
-	const boxMaterial = new THREE.MeshStandardMaterial({
-		color: 'seagreen'
+	const geometry = new THREE.SphereGeometry(1, 32, 32);
+	const material = new THREE.PointsMaterial({
+		size: 0.02,
+		// size: 1,
+		// sizeAttenuation: false
 	});
-	const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-	boxMesh.position.y = 0.5;
-	scene.add(boxMesh);
+	// material.size = 0.02;
+	// material.sizeAttenuation = false;
+	const points = new THREE.Points(geometry, material);
+	scene.add(points);
 
 	// 그리기
 	const clock = new THREE.Clock();
@@ -92,12 +59,7 @@ export default function example() {
 	function draw() {
 		const delta = clock.getDelta();
 
-		let cannonStepTime = 1/60;
-		if (delta < 0.01) cannonStepTime = 1/120;
-		cannonWorld.step(cannonStepTime, delta, 3);
-		
-		boxMesh.position.copy(boxBody.position); // 위치
-		boxMesh.quaternion.copy(boxBody.quaternion); // 회전
+		controls.update();
 
 		renderer.render(scene, camera);
 		renderer.setAnimationLoop(draw);
